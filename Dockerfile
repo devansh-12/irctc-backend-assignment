@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.12-slim
 
 WORKDIR /app
 
@@ -14,8 +14,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install mysqlclient
 
-# Copy project
-COPY . .
+# Copy project and set permissions
+COPY --chmod=755 . .
 
 # Expose port
 EXPOSE 8000

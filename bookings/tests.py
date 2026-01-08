@@ -419,7 +419,14 @@ class BookingConcurrencyTests(TransactionTestCase):
         Test that concurrent bookings don't oversell seats.
         This simulates race condition where two users try to book 
         the last seats simultaneously.
+        
+        NOTE: This test is skipped on SQLite as it doesn't support
+        concurrent writes properly (table locking issues).
         """
+        from django.conf import settings
+        if 'sqlite' in settings.DATABASES['default']['ENGINE']:
+            self.skipTest("SQLite doesn't support concurrent writes")
+        
         # Set only 3 seats available
         self.availability.booked_seats = 2
         self.availability.save()

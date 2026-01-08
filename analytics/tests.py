@@ -54,15 +54,15 @@ class RealMongoDBTests(TestCase):
         super().setUpClass()
         # Use a test database
         from pymongo import MongoClient
-        cls.client = MongoClient('mongodb://localhost:27017/')
+        cls.mongo_client = MongoClient('mongodb://localhost:27017/')
         cls.test_db_name = 'irctc_logs_test'
-        cls.db = cls.client[cls.test_db_name]
+        cls.db = cls.mongo_client[cls.test_db_name]
     
     @classmethod
     def tearDownClass(cls):
         # Clean up test database
-        cls.client.drop_database(cls.test_db_name)
-        cls.client.close()
+        cls.mongo_client.drop_database(cls.test_db_name)
+        cls.mongo_client.close()
         super().tearDownClass()
     
     def setUp(self):
@@ -197,14 +197,14 @@ class RealMongoDBAPITests(APITestCase):
     def setUpClass(cls):
         super().setUpClass()
         from pymongo import MongoClient
-        cls.client = MongoClient('mongodb://localhost:27017/')
+        cls.mongo_client = MongoClient('mongodb://localhost:27017/')
         cls.test_db_name = 'irctc_logs_test'
-        cls.db = cls.client[cls.test_db_name]
+        cls.db = cls.mongo_client[cls.test_db_name]
     
     @classmethod
     def tearDownClass(cls):
-        cls.client.drop_database(cls.test_db_name)
-        cls.client.close()
+        cls.mongo_client.drop_database(cls.test_db_name)
+        cls.mongo_client.close()
         super().tearDownClass()
     
     def setUp(self):

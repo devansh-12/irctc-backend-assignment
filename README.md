@@ -222,3 +222,6 @@ GET /api/analytics/logs/?min_time_ms=1000
 GET /api/analytics/logs/?endpoint=/api/trains/search/&limit=100
 ```
 
+### Sample MongoDB Logs
+
+![Sample MongoDB Logs](screenshots/sample-log.png)

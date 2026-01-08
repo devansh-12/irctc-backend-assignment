@@ -1,4 +1,4 @@
-version: '3.8'
+# Docker Compose for IRCTC Backend
 
 services:
   # Django Backend
@@ -22,8 +22,6 @@ services:
         condition: service_healthy
       mongo:
         condition: service_started
-    volumes:
-      - .:/app
     command: >
       sh -c "python manage.py migrate &&
              python manage.py seed_db &&
@@ -42,7 +40,7 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
       interval: 10s
       timeout: 5s
       retries: 5
