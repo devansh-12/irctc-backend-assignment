@@ -1,5 +1,5 @@
 """
-Custom User model and authentication models.
+Custom User model for email-based authentication.
 """
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
@@ -55,21 +55,3 @@ class User(AbstractBaseUser, PermissionsMixin):
     
     def __str__(self):
         return self.email
-
-
-class RefreshToken(models.Model):
-    """Model to track refresh tokens for JWT authentication."""
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='refresh_tokens')
-    token_hash = models.CharField(max_length=255)
-    expires_at = models.DateTimeField()
-    is_revoked = models.BooleanField(default=False)
-    created_at = models.DateTimeField(default=timezone.now)
-    
-    class Meta:
-        db_table = 'refresh_tokens'
-    
-    def __str__(self):
-        return f"RefreshToken for {self.user.email}"
-    
-    def is_valid(self):
-        return not self.is_revoked and self.expires_at > timezone.now()

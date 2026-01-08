@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  # Django Backend
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=True
+      - SECRET_KEY=docker-dev-secret-key-change-in-prod
+      - USE_MYSQL=True
+      - MYSQL_HOST=db
+      - MYSQL_PORT=3306
+      - MYSQL_DATABASE=irctc_db
+      - MYSQL_USER=irctc_user
+      - MYSQL_PASSWORD=irctc_password
+      - MONGODB_URI=mongodb://mongo:27017/
+      - MONGODB_NAME=irctc_logs
+    depends_on:
+      db:
+        condition: service_healthy
+      mongo:
+        condition: service_started
+    volumes:
+      - .:/app
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py seed_db &&
+             python manage.py runserver 0.0.0.0:8000"
+
+  # MySQL Database
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: irctc_db
+      MYSQL_USER: irctc_user
+      MYSQL_PASSWORD: irctc_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MongoDB for Logging
+  mongo:
+    image: mongo:6.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mysql_data:
+  mongo_data:
