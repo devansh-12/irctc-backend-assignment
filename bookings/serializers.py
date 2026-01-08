@@ -84,22 +84,19 @@ class BookingCreateSerializer(serializers.Serializer):
         return value
     
     def validate(self, attrs):
-        """Validate seat availability."""
+        """Validate seat availability (without locking - lock in create())."""
         schedule = attrs['schedule_id']
         num_passengers = len(attrs['passengers'])
         
-        # Check seat availability
+        # Check seat availability (no lock here - just a preliminary check)
+        # The actual locked check happens in create() inside transaction.atomic()
         try:
-            availability = SeatAvailability.objects.select_for_update().get(
-                schedule=schedule
-            )
+            availability = SeatAvailability.objects.get(schedule=schedule)
             if not availability.can_book(num_passengers):
                 raise serializers.ValidationError({
                     'passengers': f"Only {availability.available_seats} seats available."
                 })
-            attrs['availability'] = availability
         except SeatAvailability.DoesNotExist:
-            # This shouldn't happen, but handle it gracefully
             raise serializers.ValidationError({
                 'schedule_id': "Seat availability not found for this schedule."
             })
@@ -110,7 +107,6 @@ class BookingCreateSerializer(serializers.Serializer):
         """Create booking with passengers and update seat availability."""
         schedule = validated_data['schedule_id']
         passengers_data = validated_data['passengers']
-        availability = validated_data['availability']
         user = self.context['request'].user
         
         num_passengers = len(passengers_data)
